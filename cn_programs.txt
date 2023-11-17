@@ -1,0 +1,747 @@
+    
+
+
+2.)Implement the data link layer framing methods such as character count,
+character stuffing and bit stuffing.
+#include <stdio.h>
+void main ()
+{
+char str [50];
+int i;
+printf("Enter input string");
+gets(str);
+printf ("After byte stuffing");
+printf("\nIn Sender side \n");
+printf("\nDLE STX ");
+for (i=0; i< (strlen (str)-1); i++)
+{
+if(str[i]=='D') {
+if(str[i+1]=='L') {
+if (str [i+2]=='E') {
+printf (" DLE DLE ");
+i+=2;
+continue;
+}
+}
+}
+printf(" %c DLE ",str[i]);
+} // end of loop
+if(i<strlen(str))
+printf("%c ",str[strlen(str)-1]);
+printf(" DLE ETX ");
+printf("\nAfter bits unstuffing \n");
+printf("\nAt Receiver side ");
+for(i=0;i<strlen(str);i++)
+printf("%c ",str[i]);
+}
+Output:
+Enter input String: abcDLEc
+After byte stuffing
+Sender Side
+DLETX DLE a DLE b DLE DLE DLE c DLEETX
+After bits unstuffing
+At Receiver Side abDLEc.
+
+*Source Code for Bit Stuffing:
+#include <stdio.h>
+void main() {
+char str[50]; int
+i,flag=0;
+printf("\nEnter input string ");
+gets(str);
+printf("\nAfter bits stuffing \n");
+printf("\nIn Sender side ");
+for(i=0;i<strlen(str);i++) {
+if(flag==5) {
+printf(" 0 ");
+flag=0;
+}
+if(str[i]=='1') {
+flag++;
+}
+else
+flag=0;
+printf(" %c ",str[i]);
+}
+printf("\nAfter bits unstuffing \n");
+printf("\nAt Receiver side ");
+for(i=0;i<strlen(str);i++)
+printf("%c ",str[i]);
+}
+Output:
+Enter input String: 001111110
+After bits stuffing
+Sender Side 0011111010
+After bits unstuffing
+At Receiver Side 001111110.
+
+
+
+
+
+
+3.)Write a Program to implement data link layer farming method checksum
+
+source code:
+#include<stdio.h>
+#include<math.h>
+ 
+int sender(int arr[10],int n)
+{
+    int checksum,sum=0,i;
+    printf("\n****SENDER SIDE****\n");
+    for(i=0;i<n;i++)
+    sum+=arr[i];
+    printf("SUM IS: %d",sum);
+    checksum=~sum;    //1's complement of sum
+    printf("\nCHECKSUM IS:%d",checksum);
+    return checksum;
+}
+ 
+void receiver(int arr[10],int n,int sch)
+{
+    int checksum,sum=0,i;
+    printf("\n\n****RECEIVER SIDE****\n");
+    for(i=0;i<n;i++)
+        sum+=arr[i];
+    printf("SUM IS:%d",sum);
+    sum=sum+sch;
+    checksum=~sum;    //1's complement of sum
+    printf("\nCHECKSUM IS:%d",checksum);
+}
+ 
+void main()
+{
+    int n,sch,rch;
+    n=100;
+    printf("\nENTER SIZE OF THE STRING:");
+    scanf("%d",&n);
+    int arr[n];
+    printf("ENTER THE ELEMENTS OF THE ARRAY TO CALCULATE CHECKS:\n");
+    for(int i=0;i<n-1;i++)
+    {
+        scanf("%d",&arr[i]);
+    }
+    sch=sender(arr,n);
+    receiver(arr,n,sch);
+}
+
+
+
+
+
+
+
+4.)Write a program for Hamming Code generation for error detection and correction
+Source code:
+#include <math.h>
+#include <stdio.h>
+
+int input[32];
+int code[32];
+int ham_calc(int, int);
+void solve(int input[], int);
+int ham_calc(int position, int c_l)
+{
+	int count = 0, i, j;
+	i = position - 1;
+	while (i < c_l) {
+
+		for (j = i; j < i + position; j++) {
+			if (code[j] == 1)
+				count++;
+		}
+		i = i + 2 * position;
+	}
+
+	if (count % 2 == 0)
+		return 0;
+	else
+		return 1;
+}
+void solve(int input[], int n)
+{
+	int i, p_n = 0, c_l, j, k;
+	i = 0;
+	while (n > (int)pow(2, i) - (i + 1)) {
+		p_n++;
+		i++;
+	}
+
+	c_l = p_n + n;
+
+	j = k = 0;
+	for (i = 0; i < c_l; i++) {
+		if (i == ((int)pow(2, k) - 1)) {
+			code[i] = 0;
+			k++;
+		}
+		else {
+			code[i] = input[j];
+			j++;
+		}
+	}
+	for (i = 0; i < p_n; i++) {
+		int position = (int)pow(2, i);
+		int value = ham_calc(position, c_l);
+		code[position - 1] = value;
+	}
+	printf("\nThe generated Code Word is: ");
+	for (i = 0; i < c_l; i++) {
+		printf("%d", code[i]);
+	}
+}
+void main()
+{
+	int N,i=0;
+	printf("enter the number:");
+	scanf("%d",&N);
+	printf("enter the elements:");
+	for(i=0;i<N-1;i++)
+	{
+	    scanf("%d",&input[i]);
+	}
+	solve(input, N);
+}
+
+
+
+
+
+
+
+
+
+5.)Write a Program to implement on a data set of characters the three CRC polynomials – CRC 12, CRC
+16 and CRC CCIP
+#include <stdio.h> #include
+<string.h>#define N strlen(g)
+char t[28],cs[28],g[28];
+int a,e,c,b; void xor()
+{
+for(c=1;c<N;c++)
+cs[c]=((cs[c]==g[c])?'0':'1');
+}
+void crc()
+{
+for(e=0;e<N;e++)
+cs[e]=t[e];
+do
+{
+if(cs[0]=='1')
+xor();
+for(c=0;c<N-1;c++)
+cs[c]=cs[c+1];
+cs[c]=t[e++];
+}while(e<=a+N-1);
+}
+int main()
+{
+int flag=0;
+do{
+printf("\n1.crc12\n2.crc16\ncrc ccit\n4.exit\n\nEnter your option.");
+scanf("%d",&b);
+switch(b)
+{
+case 1:strcpy(g,"1100000001111");
+break;
+case 2:strcpy(g,"11000000000000101");
+break;
+case 3:strcpy(g,"10001000000100001");
+break;
+case 4:return 0;
+}
+printf("\n enter data:");
+scanf("%s",t);
+printf("\n-----------------------\n");
+printf("\n generating polynomial:%s",g);
+a=strlen(t);
+for(e=a;e<a+N-1;e++)
+t[e]='0';
+printf("\n--------------------------\n");
+printf("mod-ified data is:%s",t);
+printf("\n-----------------------\n");
+crc();
+printf("checksum is:%s",cs);
+for(e=a;e<a+N-1;e++)
+t[e]=cs[e-a];
+printf("\n-----------------------\n"); printf("\n
+final codeword is : %s",t); printf("\n---------
+---------------\n");
+printf("\ntest error detection 0(yes) 1(no)?:");
+scanf("%d",&e);
+if(e==0)
+{
+do{
+printf("\n\tenter the position where error is to be inserted:");
+scanf("%d",&e);
+}
+while(e==0||e>a+N-1);
+t[e-1]=(t[e-1]=='0')?'1':'0';
+printf("\n-----------------------\n");
+printf("\n\terroneous data:%s\n",t);
+}
+crc();
+for(e=0;(e<N-1)&&(cs[e]!='1');e++);
+if(e<N-1)
+printf("error detected\n\n");
+else
+printf("\n no error detected \n\n");
+printf("\n-----------------------");
+}while(flag!=1);
+}
+Output:
+1.crc12 2.crc16
+3.crc ccit
+4.exit
+Enter your option.1
+enter data:1100110011100011
+-----------------------
+generating polynomial:1100000001111
+-------------------------
+mod-ified data is:11001100111000110000000000001100000001111
+-----------------------
+checksum is:1101110110001
+-----------------------
+final codeword is : 11001100111000111101110110001100000001111
+------------------------
+test error detection 0(yes) 1(no)?:1
+no error detected
+-----------------------
+1.crc12 
+2.crc16
+3.crc ccit
+4.exit
+Enter your option.2
+enter data:11001100111000
+-----------------------
+12
+DHANEKULA INSTITUTE OF ENGG & TECH CN & NP LAB
+generating polynomial:11000000000000101
+--------------------------
+mod-ified data
+is:110011001110000000000000000000000000000000101
+-----------------------
+checksum is:11111111110110000
+-----------------------
+final codeword is : 110011001110001111111111011000000000000000101
+------------------------
+test error detection 0(yes) 1(no)?:1
+no error detected
+-----------------------
+1.crc12 2.crc16
+3.crc ccit
+4.exit
+Enter your option.3
+enter data:11001100111000
+-----------------------
+generating polynomial:10001000000100001
+--------------------------
+mod-ified data is:110011001110000000000000000000001000000100001
+-----------------------
+checksum is:11100111100111010
+-----------------------
+final codeword is : 110011001110001110011110011101001000000100001
+------------------------
+test error detection 0(yes) 1(no)?:0
+Enter the position where error is to be inserted:3
+-----------------------
+erroneous data:111011001110001110011110011101001000000100001
+error detected
+-----------------------
+1.crc12 2.crc16
+3.crc ccit
+4.exit
+Enter your option.4
+Result:
+Thus the program for cyclic redundancy check is executed.
+
+
+
+
+
+
+
+
+
+
+
+6.)Write a Program to implement Sliding window protocol for Goback N.
+source:
+#include<stdio.h>
+int main()
+{
+	int windowsize,sent=0,ack,i;
+	printf("enter window size\n");
+	scanf("%d",&windowsize);
+	while(1)
+	{
+		for( i = 0; i < windowsize; i++)
+			{
+				printf("Frame %d has been transmitted.\n",sent);
+				sent++;
+				if(sent == windowsize)
+					break;
+			}
+			printf("\nPlease enter the last Acknowledgement received.\n");
+			scanf("%d",&ack);
+			
+			if(ack == windowsize)
+				break;
+			else
+				sent = ack;
+	}
+return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+8.)Write a Program to implement Stop and Wait Protocol
+#include<stdio.h>
+int sender();
+int recv();
+int timer=0,wait_for_ack=-1,frameQ=0,cansend=1,t=0;
+int  main()
+{
+        int i,j;
+        int frame[5];
+        
+        printf("enter the time when data frame will be ready\n");
+        for(j=0;j<3;j++)
+        {
+
+                sender(i,frame);
+                recv(i);
+        }
+}
+ int sender(int i,int frame[])
+                {
+                        wait_for_ack++;
+                        if(wait_for_ack==3)
+                        {
+                
+                        if(i==frame[t])
+                {
+                        frameQ++;
+                        t++;
+                }
+                if(frameQ==0)
+                        printf("NO FRAME TO SEND at time=%d \n",i);
+
+                if(frameQ>0 && cansend==1)
+                {
+                        printf("FRAME SEND AT TIME=%d\n",i);
+                        cansend=-1;
+                        frameQ--;
+                        timer++;
+                        printf("timer in sender=%d\n",timer);
+                 }
+                if(frameQ>0 && cansend==-1)
+                        printf("FRAME IN Q FOR TRANSMISSION AT TIME=%d\n",i);
+                if(frameQ>0)
+                        t++;
+                        }
+        printf("frameQ=%d\n",frameQ);
+        printf("i=%d     t=%d\n",i,t);
+        printf("value in frame=%d\n",frame[t]);
+        return 0;
+        }
+
+
+
+
+
+       int recv(int i )
+        {   printf("timer in recvr=%d\n",timer);
+                if(timer>0)
+                {
+                        timer++;
+                }
+                        if(timer==3)
+                        {
+                                printf("FRAME ARRIVED AT TIME= %d\n",i);
+                                wait_for_ack=0;
+                                timer=0;
+                        }
+                        else
+                                printf("WAITING FOR FRAME AT TIME %d\n",i);
+                               return 0;
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+9.)Write a program for congestion control using leaky bucket algorithm
+// cpp program to implement leakybucket
+#include <stdio.h>
+
+int main()
+{
+	int no_of_queries, storage, output_pkt_size;
+	int input_pkt_size, bucket_size, size_left;
+
+	// initial packets in the bucket
+	storage = 0;
+
+	// total no. of times bucket content is checked
+
+	no_of_queries = 4;
+
+	// total no. of packets that can
+	// be accommodated in the bucket
+	bucket_size = 10;
+
+	// no. of packets that enters the bucket at a time
+	input_pkt_size = 4;
+
+	// no. of packets that exits the bucket at a time
+	output_pkt_size = 1;
+	for (int i = 0; i < no_of_queries; i++) // space left
+	{
+		size_left = bucket_size - storage;
+		if (input_pkt_size <= size_left) {
+			// update storage
+			storage += input_pkt_size;
+		}
+		else {
+			printf("Packet loss = %d\n", input_pkt_size);
+		}
+		printf("Buffer size= %d out of bucket size= %d\n",
+			storage, bucket_size);
+		storage -= output_pkt_size;
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+10.)Write a Program to implement Dijkstra‘s algorithm to compute the Shortest path through a graph.
+
+#include<stdio.h>
+#include<stdlib.h>
+#define MAX_NODES 1024
+#define INFINITY 1000
+int n=8,cost=0,dist[8][8]={{0,2,0,0,0,0,6,0},
+{2,0,7,0,2,0,0,0},
+{0,7,0,3,0,3,0,0},
+{0,0,3,0,0,0,0,2},
+{0,2,0,0,0,2,1,0},
+{0,0,3,0,2,0,0,2},
+{6,0,0,0,1,0,0,4},
+{0,0,0,2,0,2,4,0}};
+int shortest_dist(int s,int t,int path[])
+{
+int i,k,min; struct
+state
+{
+int pre;
+int length;
+int label;
+}state[1024];
+struct state *p;
+for(p=&state[0];p<&state[n];p++)
+{
+p->pre=-1;
+p->length=INFINITY;
+p->label=0;
+}
+state[0].length=0;
+state[0].label=1;
+state[0].pre=-1;
+k=t;
+do
+{
+for(i=0;i<n;i++)
+if(dist[k][i]!=0 && state[i].label==0)
+{
+if(state[k].length+dist[k][i]<state[i].length)
+{
+state[i].pre=k;
+state[i].length=state[k].length+dist[k][i];
+}
+
+}
+k=0;
+min=INFINITY;
+for(i=0;i<n;i++)
+if(state[i].label==0 && state[i].length<min)
+{
+min=state[i].length;
+k=i;
+}
+state[k].label=1;
+}while(k!=s);
+i=0;
+k=s;
+do
+{
+path[i++]=k;
+k=state[k].pre;
+cost+=state[k].length;
+}while(k>=0);
+return i;
+}
+void main()
+{
+int i,j,m,path[102],q,p;
+printf("\nEnter Number of nodes(1-8): ");
+scanf("%d",&n);
+printf("\nEnter Source Vertex(1-8): ");
+scanf("%d",&p);
+printf("\nEnter Destination vertex(1-8): ");
+scanf("%d",&q);
+m=shortest_dist(q-1,p-1,path);
+for(i=0;i<m;i++)
+{
+printf(" %c-> ",path[i]+'A');
+
+}
+printf("\nCost is: %d \n",cost);
+}
+Output:
+Enter Number of nodes(1-8): 7
+Enter Source Vertex(1-8): 1
+Enter Destination vertex(1-8): 7
+G-> E-> B-> A->
+Cost is: 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+11.)Write a Program to implement Distance vector routing algorithm by obtaining routing table at each
+node (Take an example subnet graph with weights indicating delay between nodes).
+
+#include<stdio.h>
+struct node
+{
+unsigned dist[20];
+unsigned from[20];
+}rt[10];
+int main()
+{
+int dmat[20][20];
+int n,i,j,k,count=0;
+printf("enter the number of nodes:");
+scanf("%d",&n);
+printf("enter the cost matrix :\n");
+for(i=0;i<n;i++)
+for(j=0;j<n;j++)
+{
+scanf("%d",&dmat[i][j]);
+dmat[i][i]=0;
+rt[i].dist[j]=dmat[i][j];
+rt[i].from[j]=j;
+}
+do
+{
+count=0;
+for(i=0;i<n;i++)
+for(j=0;j<n;j++)
+for(k=0;k<n;k++)
+if(rt[i].dist[j]>dmat[i][k]+rt[k].dist[j])
+{
+rt[i].dist[j]=rt[i].dist[k]+rt[k].dist[j];
+rt[i].from[j]=k;
+count++;
+}
+}while(count!=0);
+for(i=0;i<n;i++)
+for(j=0;j<n;j++)
+{
+printf("\n state value for router %d is\n",i+1);
+for(j=0;j<n;j++)
+{
+printf("\n node %d via %d Distance %d", j+1,rt[i].from[j]+1,rt[i].dist[j]);
+}}
+printf("\n");
+}
+Output:
+enter the number of nodes:3
+enter the root matrix:
+024
+504
+830
+state value for router 1 is
+
+node 1 via 1 distance 0
+node 2 via 2 distance 2
+node 3 via 3 distance 4
+state value for router 2 is
+node 1 via 1 distance 5
+node 2 via 2 distance 0
+node 3 via 3 distance 4
+state value for router 3 is
+node 1 via 1 distance 8
+node 2 via 2 distance 3
+
+
+
+
+
+
+
+
+
+
+
+12.)Write a Program to implement Broadcast tree by taking subnet of hosts
+void main()
+{
+ unsigned int compad[4];
+ unsigned int mask[4];
+ unsigned int netadr[4];
+ int i;
+ printf("Enter the ip address:\n");
+ scanf("%u%*c%u%*c%u%*c%u%*c",&compad[3],&compad[2],&compad[1],&compad[0]);
+ printf("Enter the subnet address:\n");
+ scanf("%u%*c%u%*c%u%*c%u%*c",&mask[3],&mask[2],&mask[1],&mask[0]);
+ for(i=0;i<4;i++)
+ {
+ netadr[i]= compad[i]&mask[i];
+ }
+ printf("\nNetwork address is:\n");
+ printf("%u.%u.%u.%u",netadr[3],netadr[2],netadr[1],netadr[0]);
+ printf("\nsubnet address is:\n");
+ printf("%u.%u.%u.%u",mask[3],mask[2],mask[1],mask[0]);
+ printf("\nip address is:\n");
+ printf("%u.%u.%u.%u",compad[3],compad[2],compad[1],compad[0]);
+}
+ 
